@@ -3,7 +3,6 @@ package resp
 import (
 	"bytes"
 	"errors"
-	"strconv"
 )
 
 // BulkString implements the RESP2 Bulk String type allowing for larger blocks
@@ -30,10 +29,7 @@ func (s BulkString) Type() Type {
 // Unlike simple types, these are split into two parts. The first is the length,
 // and the second being the content. They are separated by a terminator.
 func (s BulkString) Contents() []byte {
-	slen := strconv.FormatUint(uint64(len(s.byts)), 10)
-
-	content := make([]byte, len(slen))
-	copy(content, slen)
+	content := LenBytes(len(s.byts))
 	content = append(content, eol...)
 	content = append(content, s.byts...)
 	return content
@@ -88,4 +84,30 @@ func (s BulkString) Marshal(_ Version) ([]byte, error) {
 
 func NewBulkString(str string) BulkString {
 	return BulkString{[]byte(str)}
+}
+
+// ExtractBulkString takes a byte slice that may be larger than an individual
+// object and extracts the needed RESP data to fill a [BulkString] type. It will
+// check the initial type identifier for you.
+//
+// It returns the object, the remaining bytes after the error AND terminator,
+// and an error if one occurred.
+//
+// If an error did happen, the object is returned as is, and the source is
+// returned un-altered.
+func ExtractBulkString(src []byte) (BulkString, []byte, error) {
+	var v BulkString
+
+	term := IndexN(src, 2, eol)
+	if term == -1 {
+		return v, src, errors.New("no terminator found for end of BulkString")
+	}
+
+	// Unmarshal checks the type and ending terminator for us
+	err := v.Unmarshal2(src[:term+len(eol)])
+	if err != nil {
+		return v, src, err
+	}
+
+	return v, src[term+len(eol):], nil
 }

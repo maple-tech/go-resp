@@ -72,3 +72,33 @@ func (e SimpleError) Marshal(_ Version) ([]byte, error) {
 func NewSimpleError(str string) SimpleError {
 	return SimpleError{[]byte(str)}
 }
+
+// ExtractSimpleError takes a byte slice that may be larger than an individual
+// object and extracts the needed RESP data to fill a Simple Error type. It will
+// check the initial type identifier for you.
+//
+// It returns the object, the remaining bytes after the error AND terminator,
+// and an error if one occurred.
+//
+// If an error did happen, the object is returned as is, and the source is
+// returned un-altered.
+func ExtractSimpleError(src []byte) (SimpleError, []byte, error) {
+	var s SimpleError
+	if len(src) < 3 {
+		return s, src, errors.New("cannot extract from empty source")
+	}
+
+	typ := Type(src[0])
+	if typ != TypeSimpleError {
+		return s, src, errors.New("attempted to extract simple error from incorrect type identifier")
+	}
+
+	term := bytes.Index(src, eol)
+	if term == -1 {
+		return s, src, errors.New("no terminator found for end of error")
+	}
+
+	s.byts = src[1:term]
+
+	return s, src[term+len(eol):], nil
+}

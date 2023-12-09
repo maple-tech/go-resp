@@ -2,6 +2,7 @@ package resp
 
 import (
 	"bytes"
+	"errors"
 )
 
 // SimpleString implements the RESP2 Simple String type allowing for individual
@@ -65,4 +66,34 @@ func (s SimpleString) Marshal(_ Version) ([]byte, error) {
 
 func NewSimpleString(str string) SimpleString {
 	return SimpleString{[]byte(str)}
+}
+
+// ExtractSimpleString takes a byte slice that may be larger than an individual
+// object and extracts the needed RESP data to fill a Simple String type. It will
+// check the initial type identifier for you.
+//
+// It returns the object, the remaining bytes after the string and terminator,
+// and an error if one occurred.
+//
+// If an error did happen, the object is returned as is, and the source is
+// returned un-altered.
+func ExtractSimpleString(src []byte) (SimpleString, []byte, error) {
+	var s SimpleString
+	if len(src) < 3 {
+		return s, src, errors.New("cannot extract from empty source")
+	}
+
+	typ := Type(src[0])
+	if typ != TypeSimpleString {
+		return s, src, errors.New("attempted to extract simple string from incorrect type identifier")
+	}
+
+	term := bytes.Index(src, eol)
+	if term == -1 {
+		return s, src, errors.New("no terminator found for end of string")
+	}
+
+	s.byts = src[1:term]
+
+	return s, src[term+len(eol):], nil
 }

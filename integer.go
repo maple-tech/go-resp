@@ -2,6 +2,7 @@ package resp
 
 import (
 	"bytes"
+	"errors"
 	"strconv"
 )
 
@@ -63,4 +64,30 @@ func (i Integer) Marshal(_ Version) ([]byte, error) {
 
 func NewInteger(num int64) Integer {
 	return Integer{num}
+}
+
+// ExtractInteger takes a byte slice that may be larger than an individual
+// object and extracts the needed RESP data to fill a [Integer] type. It will
+// check the initial type identifier for you.
+//
+// It returns the object, the remaining bytes after the error AND terminator,
+// and an error if one occurred.
+//
+// If an error did happen, the object is returned as is, and the source is
+// returned un-altered.
+func ExtractInteger(src []byte) (Integer, []byte, error) {
+	var v Integer
+
+	term := bytes.Index(src, eol)
+	if term == -1 {
+		return v, src, errors.New("no terminator found for end of Integer")
+	}
+
+	// Unmarshal checks the type and ending terminator for us
+	err := v.Unmarshal2(src[:term+len(eol)])
+	if err != nil {
+		return v, src, err
+	}
+
+	return v, src[term+len(eol):], nil
 }
