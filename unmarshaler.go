@@ -81,3 +81,24 @@ func Unmarshal3(src []byte, dst any) error {
 func Unmarshal(src []byte, dst any) error {
 	return errors.New("not implemented yet")
 }
+
+// CanUnmarshalObject returns nil if the source data can be unmarshaled onto the
+// destination [Object]. It does this by checking the first type identifier byte,
+// and that it ends with the RESP terminator.
+//
+// It does not verify that the contents are correct, just that the type and
+// general format is correct.
+func CanUnmarshalObject(src []byte, dst Object) error {
+	if len(src) <= 2 {
+		return errors.New("source content is not long enough to be valid")
+	} else if src[0] != byte(dst.Type()) {
+		return errors.New("invalid type identifier for unmarshaling object")
+	} else if !EndsWithTerminator(src) {
+		return errors.New("source does not end with terminator")
+	}
+	return nil
+}
+
+func UnmarshalObject(src []byte, dst Object) error {
+	return nil
+}

@@ -3,7 +3,6 @@ package resp
 import (
 	"bytes"
 	"errors"
-	"io"
 )
 
 // SimpleError implements the RESP2 Simple Error type allowing for individual
@@ -11,13 +10,24 @@ import (
 // contain the terminator (\r\n) in the string, but the encoders make no validation
 // check of this.
 type SimpleError struct {
-	Type
+	typ  Type
 	byts []byte
 }
 
 // Error implements the [Error] interface since this is actually an error type.
 func (e SimpleError) Error() string {
 	return string(e.byts)
+}
+
+// Value returns the inner value of this type without the additional protocol
+// implementation. This is for using reflection and other marshalers.
+func (e SimpleError) Value() any {
+	return errors.New(string(e.byts))
+}
+
+// Type returns the underlying RESP type identifier for this object
+func (e SimpleError) Type() Type {
+	return e.typ
 }
 
 // Contents returns the inner contents of the item without its type identifier,
@@ -28,12 +38,8 @@ func (e SimpleError) Contents() []byte {
 }
 
 func (e *SimpleError) Unmarshal2(src []byte) error {
-	if len(src) <= 2 {
-		return errors.New("source content is not long enough to be valid")
-	} else if src[0] != byte(e.Type) {
-		return errors.New("invalid type identifier for unmarshaling SimpleError")
-	} else if !EndsWithTerminator(src) {
-		return errors.New("source does not end with terminator")
+	if err := CanUnmarshalObject(src, e); err != nil {
+		return err
 	}
 
 	e.byts = Contents(src)
@@ -48,26 +54,9 @@ func (e *SimpleError) Unmarshal(src []byte, _ Version) error {
 	return e.Unmarshal2(src)
 }
 
-func (e SimpleError) WriteTo(w io.Writer) (n int64, err error) {
-	var l int
-	if l, err = w.Write([]byte{byte(e.Type)}); err != nil {
-		return
-	} else {
-		n += int64(l)
-	}
-	if l, err = w.Write(e.Contents()); err != nil {
-		return
-	} else {
-		n += int64(l)
-	}
-	l, err = w.Write(eol)
-	n += int64(l)
-	return
-}
-
 func (e SimpleError) Marshal2() ([]byte, error) {
 	buf := bytes.Buffer{}
-	if _, err := e.WriteTo(&buf); err != nil {
+	if _, err := WriteTo(e, &buf); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil

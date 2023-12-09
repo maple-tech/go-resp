@@ -95,3 +95,9 @@ func (t Type) Version() Version {
 	}
 	return VersionUnknown
 }
+
+// Typer is anything that returns a Type value and is used for asserting RESP
+// type payloads.
+type Typer interface {
+	Type() Type
+}
