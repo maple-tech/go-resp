@@ -69,3 +69,15 @@ func ProxyUnmarshaler(src []byte, dst any, version Version) error {
 	// For now we return an error
 	return errors.New("object does not implement Marshaler2 interface")
 }
+
+func Unmarshal2(src []byte, dst any) error {
+	return errors.New("not implemented yet")
+}
+
+func Unmarshal3(src []byte, dst any) error {
+	return errors.New("not implemented yet")
+}
+
+func Unmarshal(src []byte, dst any) error {
+	return errors.New("not implemented yet")
+}

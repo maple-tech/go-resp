@@ -64,3 +64,16 @@ func ProxyMarshaler(obj any, version Version) ([]byte, error) {
 	// For now we return an error
 	return nil, errors.New("object does not implement Marshaler2 interface")
 }
+
+func Marshal2(obj any) ([]byte, error) {
+	return nil, errors.New("not implemented yet")
+}
+
+func Marshal3(obj any) ([]byte, error) {
+	return nil, errors.New("not implemented yet")
+}
+
+func Marshal(obj any, version Version) ([]byte, error) {
+
+	return nil, errors.New("not implemented yet")
+}
