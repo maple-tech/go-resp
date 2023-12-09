@@ -10,7 +10,6 @@ import (
 // contain the terminator (\r\n) in the string, but the encoders make no validation
 // check of this.
 type SimpleError struct {
-	typ  Type
 	byts []byte
 }
 
@@ -27,7 +26,7 @@ func (e SimpleError) Value() any {
 
 // Type returns the underlying RESP type identifier for this object
 func (e SimpleError) Type() Type {
-	return e.typ
+	return TypeSimpleError
 }
 
 // Contents returns the inner contents of the item without its type identifier,
@@ -71,8 +70,5 @@ func (e SimpleError) Marshal(_ Version) ([]byte, error) {
 }
 
 func NewSimpleError(str string) SimpleError {
-	return SimpleError{
-		TypeSimpleError,
-		[]byte(str),
-	}
+	return SimpleError{[]byte(str)}
 }
