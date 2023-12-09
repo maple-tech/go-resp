@@ -52,16 +52,15 @@ func ProxyMarshaler(obj any, version Version) ([]byte, error) {
 			return v3.MarshalRESP3()
 		} else if v2, ok := obj.(Marshaler2); ok {
 			return v2.MarshalRESP2()
-		} else {
-			// For now we return an error
-			return nil, errors.New("object does not implement either Marshaler3 or Marshaler2 interfaces")
 		}
-	} else {
-		if v2, ok := obj.(Marshaler2); ok {
-			return v2.MarshalRESP2()
-		} else {
-			// For now we return an error
-			return nil, errors.New("object does not implement Marshaler2 interface")
-		}
+		// For now we return an error
+		return nil, errors.New("object does not implement either Marshaler3 or Marshaler2 interfaces")
 	}
+
+	if v2, ok := obj.(Marshaler2); ok {
+		return v2.MarshalRESP2()
+	}
+
+	// For now we return an error
+	return nil, errors.New("object does not implement Marshaler2 interface")
 }
