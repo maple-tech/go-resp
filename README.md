@@ -2,6 +2,38 @@
 
 Implements the RESP protocol for version 2 &amp; 3 in order to build Redis clients.
 
+## Roadmap
+
+This is currently in-progress. Nothing has been tested yet, but this is what is
+implemented so far.
+
+### RESP 2
+
+- [X] Simple String
+- [X] Simple Error
+- [X] Integers
+- [X] Bulk String
+- [X] Array
+
+### RESP 3
+
+- [ ] Nulls
+- [ ] Booleans
+- [ ] Doubles
+- [ ] Big Number
+- [ ] Bulk Error
+- [ ] Verbatim String
+- [ ] Map
+- [ ] Set
+- [ ] Push
+
+### General Usage
+
+- [ ] Unmarshal
+- [ ] Marshal
+- [ ] io.Reader
+- [ ] io.Writer
+ 
 ## Installation
 
 ```
