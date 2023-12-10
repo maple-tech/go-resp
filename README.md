@@ -21,7 +21,7 @@ implemented so far.
 - [X] Booleans
 - [X] Doubles
 - [X] Big Number
-- [ ] Bulk Error
+- [X] Bulk Error
 - [ ] Verbatim String
 - [ ] Map
 - [ ] Set
