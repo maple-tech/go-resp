@@ -20,7 +20,7 @@ implemented so far.
 - [X] Nulls
 - [X] Booleans
 - [X] Doubles
-- [ ] Big Number
+- [X] Big Number
 - [ ] Bulk Error
 - [ ] Verbatim String
 - [ ] Map

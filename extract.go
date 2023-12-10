@@ -30,6 +30,8 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractBoolean(src)
 	case TypeDouble:
 		return ExtractDouble(src)
+	case TypeBigNumber:
+		return ExtractBigNumber(src)
 	}
 	return nil, src, errors.New("could not extract valid RESP object")
 }
