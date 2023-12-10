@@ -18,7 +18,7 @@ implemented so far.
 ### RESP 3
 
 - [X] Nulls
-- [ ] Booleans
+- [X] Booleans
 - [ ] Doubles
 - [ ] Big Number
 - [ ] Bulk Error
