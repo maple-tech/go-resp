@@ -24,6 +24,8 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractInteger(src)
 	case TypeBulkString:
 		return ExtractBulkString(src)
+	case TypeNull:
+		return ExtractNull(src)
 	}
 	return nil, src, errors.New("could not extract valid RESP object")
 }
