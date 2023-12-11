@@ -28,7 +28,7 @@ func (i Integer) Contents() []byte {
 	return []byte(strconv.FormatInt(i.int64, 10))
 }
 
-func (i *Integer) Unmarshal2(src []byte) error {
+func (i *Integer) UnmarshalRESP2(src []byte) error {
 	if err := CanUnmarshalObject(src, i); err != nil {
 		return err
 	}
@@ -38,15 +38,15 @@ func (i *Integer) Unmarshal2(src []byte) error {
 	return err
 }
 
-func (i *Integer) Unmarshal3(src []byte) error {
-	return i.Unmarshal2(src)
+func (i *Integer) UnmarshalRESP3(src []byte) error {
+	return i.UnmarshalRESP2(src)
 }
 
-func (i *Integer) Unmarshal(src []byte, _ Version) error {
-	return i.Unmarshal2(src)
+func (i *Integer) UnmarshalRESP(src []byte, _ Version) error {
+	return i.UnmarshalRESP2(src)
 }
 
-func (i Integer) Marshal2() ([]byte, error) {
+func (i Integer) MarshalRESP2() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(i, &buf); err != nil {
 		return nil, err
@@ -54,12 +54,12 @@ func (i Integer) Marshal2() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (i Integer) Marshal3() ([]byte, error) {
-	return i.Marshal2()
+func (i Integer) MarshalRESP3() ([]byte, error) {
+	return i.MarshalRESP2()
 }
 
-func (i Integer) Marshal(_ Version) ([]byte, error) {
-	return i.Marshal2()
+func (i Integer) MarshalRESP(_ Version) ([]byte, error) {
+	return i.MarshalRESP2()
 }
 
 func NewInteger(num int64) Integer {
@@ -84,7 +84,7 @@ func ExtractInteger(src []byte) (Integer, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal2(src[:term+len(eol)])
+	err := v.UnmarshalRESP2(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

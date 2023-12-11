@@ -35,7 +35,7 @@ func (a Array) Contents() []byte {
 	return content
 }
 
-func (a *Array) Unmarshal2(src []byte) error {
+func (a *Array) UnmarshalRESP2(src []byte) error {
 	if err := CanUnmarshalObject(src, a); err != nil {
 		return err
 	}
@@ -71,15 +71,15 @@ func (a *Array) Unmarshal2(src []byte) error {
 	return nil
 }
 
-func (a *Array) Unmarshal3(src []byte) error {
-	return a.Unmarshal2(src)
+func (a *Array) UnmarshalRESP3(src []byte) error {
+	return a.UnmarshalRESP2(src)
 }
 
 func (a *Array) Unmarshal(src []byte, _ Version) error {
-	return a.Unmarshal2(src)
+	return a.UnmarshalRESP2(src)
 }
 
-func (a Array) Marshal2() ([]byte, error) {
+func (a Array) MarshalRESP2() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(a, &buf); err != nil {
 		return nil, err
@@ -87,12 +87,12 @@ func (a Array) Marshal2() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (a Array) Marshal3() ([]byte, error) {
-	return a.Marshal2()
+func (a Array) MarshalRESP3() ([]byte, error) {
+	return a.MarshalRESP2()
 }
 
-func (a Array) Marshal(_ Version) ([]byte, error) {
-	return a.Marshal2()
+func (a Array) MarshalRESP(_ Version) ([]byte, error) {
+	return a.MarshalRESP2()
 }
 
 func NewArray(entries ...Object) Array {
@@ -137,4 +137,43 @@ func ExtractArray(src []byte) (Array, []byte, error) {
 	}
 
 	return v, rest, nil
+}
+
+// rawArray is used to help marshaling services by providing the contents of each
+// array entry as a direct byte slice instead of an [Object] interface.
+type rawArray struct {
+	entries [][]byte
+}
+
+func (a rawArray) Value() any {
+	return a.entries
+}
+
+func (a rawArray) Contents() []byte {
+	content := LenBytes(len(a.entries))
+	for _, ent := range a.entries {
+		content = append(content, eol...)
+		content = append(content, ent...)
+	}
+	return content
+}
+
+func (a rawArray) Type() Type {
+	return TypeArray
+}
+
+func (a rawArray) MarshalRESP2() ([]byte, error) {
+	buf := bytes.Buffer{}
+	if _, err := WriteTo(a, &buf); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func (a rawArray) MarshalRESP3() ([]byte, error) {
+	return a.MarshalRESP2()
+}
+
+func (a rawArray) Marshal(_ Version) ([]byte, error) {
+	return a.MarshalRESP2()
 }

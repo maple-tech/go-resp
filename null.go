@@ -22,7 +22,7 @@ func (n Null) Contents() []byte {
 	return []byte{}
 }
 
-func (n *Null) Unmarshal3(src []byte) error {
+func (n *Null) UnmarshalRESP3(src []byte) error {
 	if err := CanUnmarshalObject(src, n); err != nil {
 		return err
 	}
@@ -30,14 +30,14 @@ func (n *Null) Unmarshal3(src []byte) error {
 	return nil
 }
 
-func (n *Null) Unmarshal(src []byte, ver Version) error {
+func (n *Null) UnmarshalRESP(src []byte, ver Version) error {
 	if ver == Version2 {
 		return errors.New("null is not available in RESP 2")
 	}
-	return n.Unmarshal3(src)
+	return n.UnmarshalRESP3(src)
 }
 
-func (n Null) Marshal3() ([]byte, error) {
+func (n Null) MarshalRESP3() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(n, &buf); err != nil {
 		return nil, err
@@ -45,11 +45,11 @@ func (n Null) Marshal3() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (n Null) Marshal(ver Version) ([]byte, error) {
+func (n Null) MarshalRESP(ver Version) ([]byte, error) {
 	if ver == Version2 {
 		return nil, errors.New("null is not available in RESP 2")
 	}
-	return n.Marshal3()
+	return n.MarshalRESP3()
 }
 
 func NewNull() Null {
@@ -65,7 +65,7 @@ func ExtractNull(src []byte) (Null, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal3(src[:term+len(eol)])
+	err := v.UnmarshalRESP3(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

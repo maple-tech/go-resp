@@ -27,7 +27,7 @@ func (v VerbatimString) Contents() []byte {
 	return content
 }
 
-func (v *VerbatimString) Unmarshal3(src []byte) error {
+func (v *VerbatimString) UnmarshalRESP3(src []byte) error {
 	if err := CanUnmarshalObject(src, v); err != nil {
 		return err
 	}
@@ -53,14 +53,14 @@ func (v *VerbatimString) Unmarshal3(src []byte) error {
 	return nil
 }
 
-func (v *VerbatimString) Unmarshal(src []byte, ver Version) error {
+func (v *VerbatimString) UnmarshalRESP(src []byte, ver Version) error {
 	if ver == Version2 {
 		return errors.New("verbatim string is not available in RESP 2")
 	}
-	return v.Unmarshal3(src)
+	return v.UnmarshalRESP3(src)
 }
 
-func (v VerbatimString) Marshal3() ([]byte, error) {
+func (v VerbatimString) MarshalRESP3() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(v, &buf); err != nil {
 		return nil, err
@@ -68,11 +68,11 @@ func (v VerbatimString) Marshal3() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (v VerbatimString) Marshal(ver Version) ([]byte, error) {
+func (v VerbatimString) MarshalRESP(ver Version) ([]byte, error) {
 	if ver == Version2 {
 		return nil, errors.New("verbatim string is not available in RESP 2")
 	}
-	return v.Marshal3()
+	return v.MarshalRESP3()
 }
 
 // NewVerbatimString constructs a new "Verbatim String". This is much like a
@@ -95,7 +95,7 @@ func ExtractVerbatimString(src []byte) (VerbatimString, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal3(src[:term+len(eol)])
+	err := v.UnmarshalRESP3(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

@@ -40,7 +40,7 @@ func (s BulkString) Contents() []byte {
 // NOTE: Bulk String messages are two part, as such this unmarshaler requires
 // the intermediate terminators be left in place. Because we have the whole
 // message, the first length portion is actually ignored and not validated.
-func (s *BulkString) Unmarshal2(src []byte) error {
+func (s *BulkString) UnmarshalRESP2(src []byte) error {
 	if err := CanUnmarshalObject(src, s); err != nil {
 		return err
 	}
@@ -58,15 +58,15 @@ func (s *BulkString) Unmarshal2(src []byte) error {
 	return nil
 }
 
-func (s *BulkString) Unmarshal3(src []byte) error {
-	return s.Unmarshal2(src)
+func (s *BulkString) UnmarshalRESP3(src []byte) error {
+	return s.UnmarshalRESP2(src)
 }
 
-func (s *BulkString) Unmarshal(src []byte, _ Version) error {
-	return s.Unmarshal2(src)
+func (s *BulkString) UnmarshalRESP(src []byte, _ Version) error {
+	return s.UnmarshalRESP2(src)
 }
 
-func (s BulkString) Marshal2() ([]byte, error) {
+func (s BulkString) MarshalRESP2() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(s, &buf); err != nil {
 		return nil, err
@@ -74,12 +74,12 @@ func (s BulkString) Marshal2() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (s BulkString) Marshal3() ([]byte, error) {
-	return s.Marshal2()
+func (s BulkString) MarshalRESP3() ([]byte, error) {
+	return s.MarshalRESP2()
 }
 
-func (s BulkString) Marshal(_ Version) ([]byte, error) {
-	return s.Marshal2()
+func (s BulkString) MarshalRESP(_ Version) ([]byte, error) {
+	return s.MarshalRESP2()
 }
 
 func NewBulkString(str string) BulkString {
@@ -104,7 +104,7 @@ func ExtractBulkString(src []byte) (BulkString, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal2(src[:term+len(eol)])
+	err := v.UnmarshalRESP2(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

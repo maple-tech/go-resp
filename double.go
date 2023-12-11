@@ -22,7 +22,7 @@ func (d Double) Contents() []byte {
 	return []byte(strconv.FormatFloat(d.float64, 'G', -1, 64))
 }
 
-func (d *Double) Unmarshal3(src []byte) error {
+func (d *Double) UnmarshalRESP3(src []byte) error {
 	if err := CanUnmarshalObject(src, d); err != nil {
 		return err
 	}
@@ -32,14 +32,14 @@ func (d *Double) Unmarshal3(src []byte) error {
 	return err
 }
 
-func (d *Double) Unmarshal(src []byte, ver Version) error {
+func (d *Double) UnmarshalRESP(src []byte, ver Version) error {
 	if ver == Version2 {
 		return errors.New("boolean is not available in RESP 2")
 	}
-	return d.Unmarshal3(src)
+	return d.UnmarshalRESP3(src)
 }
 
-func (d Double) Marshal3() ([]byte, error) {
+func (d Double) MarshalRESP3() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(d, &buf); err != nil {
 		return nil, err
@@ -47,11 +47,11 @@ func (d Double) Marshal3() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (d Double) Marshal(ver Version) ([]byte, error) {
+func (d Double) MarshalRESP(ver Version) ([]byte, error) {
 	if ver == Version2 {
 		return nil, errors.New("double is not available in RESP 2")
 	}
-	return d.Marshal3()
+	return d.MarshalRESP3()
 }
 
 func NewDouble(val float64) Double {
@@ -67,7 +67,7 @@ func ExtractDouble(src []byte) (Double, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal3(src[:term+len(eol)])
+	err := v.UnmarshalRESP3(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

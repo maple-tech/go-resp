@@ -34,7 +34,7 @@ func (m Map) Contents() []byte {
 	return content
 }
 
-func (m *Map) Unmarshal3(src []byte) error {
+func (m *Map) UnmarshalRESP3(src []byte) error {
 	if err := CanUnmarshalObject(src, m); err != nil {
 		return err
 	}
@@ -78,14 +78,14 @@ func (m *Map) Unmarshal3(src []byte) error {
 	return nil
 }
 
-func (m *Map) Unmarshal(src []byte, ver Version) error {
+func (m *Map) UnmarshalRESP(src []byte, ver Version) error {
 	if ver == Version2 {
 		return errors.New("map is not available in RESP 2")
 	}
-	return m.Unmarshal3(src)
+	return m.UnmarshalRESP3(src)
 }
 
-func (m Map) Marshal3() ([]byte, error) {
+func (m Map) MarshalRESP3() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(m, &buf); err != nil {
 		return nil, err
@@ -93,11 +93,11 @@ func (m Map) Marshal3() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (m Map) Marshal(ver Version) ([]byte, error) {
+func (m Map) MarshalRESP(ver Version) ([]byte, error) {
 	if ver == Version2 {
 		return nil, errors.New("map is not available in RESP 2")
 	}
-	return m.Marshal3()
+	return m.MarshalRESP3()
 }
 
 func NewMap(entries ...MapPair) Map {
@@ -158,4 +158,43 @@ func ExtractMap(src []byte) (Map, []byte, error) {
 	}
 
 	return v, rest, nil
+}
+
+type rawMap struct {
+	entries map[string][]byte
+}
+
+func (m rawMap) Value() any {
+	return m.entries
+}
+
+func (m rawMap) Contents() []byte {
+	content := LenBytes(len(m.entries))
+	for key, val := range m.entries {
+		content = append(content, eol...)
+		content = append(content, key...)
+		content = append(content, eol...)
+		content = append(content, val...)
+	}
+	return content
+}
+
+func (m rawMap) Type() Type {
+	return TypeArray
+}
+
+func (m rawMap) Marshal2() ([]byte, error) {
+	buf := bytes.Buffer{}
+	if _, err := WriteTo(m, &buf); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func (m rawMap) Marshal3() ([]byte, error) {
+	return m.Marshal2()
+}
+
+func (m rawMap) Marshal(_ Version) ([]byte, error) {
+	return m.Marshal2()
 }

@@ -36,7 +36,7 @@ func (e SimpleError) Contents() []byte {
 	return e.byts
 }
 
-func (e *SimpleError) Unmarshal2(src []byte) error {
+func (e *SimpleError) UnmarshalRESP2(src []byte) error {
 	if err := CanUnmarshalObject(src, e); err != nil {
 		return err
 	}
@@ -45,15 +45,15 @@ func (e *SimpleError) Unmarshal2(src []byte) error {
 	return nil
 }
 
-func (e *SimpleError) Unmarshal3(src []byte) error {
-	return e.Unmarshal2(src)
+func (e *SimpleError) UnmarshalRESP3(src []byte) error {
+	return e.UnmarshalRESP2(src)
 }
 
-func (e *SimpleError) Unmarshal(src []byte, _ Version) error {
-	return e.Unmarshal2(src)
+func (e *SimpleError) UnmarshalRESP(src []byte, _ Version) error {
+	return e.UnmarshalRESP2(src)
 }
 
-func (e SimpleError) Marshal2() ([]byte, error) {
+func (e SimpleError) MarshalRESP2() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(e, &buf); err != nil {
 		return nil, err
@@ -61,12 +61,12 @@ func (e SimpleError) Marshal2() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (e SimpleError) Marshal3() ([]byte, error) {
-	return e.Marshal2()
+func (e SimpleError) MarshalRESP3() ([]byte, error) {
+	return e.MarshalRESP2()
 }
 
-func (e SimpleError) Marshal(_ Version) ([]byte, error) {
-	return e.Marshal2()
+func (e SimpleError) MarshalRESP(_ Version) ([]byte, error) {
+	return e.MarshalRESP2()
 }
 
 func NewSimpleError(str string) SimpleError {

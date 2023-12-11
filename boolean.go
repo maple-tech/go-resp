@@ -24,7 +24,7 @@ func (b Boolean) Contents() []byte {
 	return []byte{'f'}
 }
 
-func (b *Boolean) Unmarshal3(src []byte) error {
+func (b *Boolean) UnmarshalRESP3(src []byte) error {
 	if err := CanUnmarshalObject(src, b); err != nil {
 		return err
 	}
@@ -40,14 +40,14 @@ func (b *Boolean) Unmarshal3(src []byte) error {
 	return nil
 }
 
-func (b *Boolean) Unmarshal(src []byte, ver Version) error {
+func (b *Boolean) UnmarshalRESP(src []byte, ver Version) error {
 	if ver == Version2 {
 		return errors.New("boolean is not available in RESP 2")
 	}
-	return b.Unmarshal3(src)
+	return b.UnmarshalRESP3(src)
 }
 
-func (b Boolean) Marshal3() ([]byte, error) {
+func (b Boolean) MarshalRESP3() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(b, &buf); err != nil {
 		return nil, err
@@ -55,11 +55,11 @@ func (b Boolean) Marshal3() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (b Boolean) Marshal(ver Version) ([]byte, error) {
+func (b Boolean) MarshalRESP(ver Version) ([]byte, error) {
 	if ver == Version2 {
 		return nil, errors.New("boolean is not available in RESP 2")
 	}
-	return b.Marshal3()
+	return b.MarshalRESP3()
 }
 
 func NewBoolean(ok bool) Boolean {
@@ -75,7 +75,7 @@ func ExtractBoolean(src []byte) (Boolean, []byte, error) {
 	}
 
 	// Unmarshal checks the type and ending terminator for us
-	err := v.Unmarshal3(src[:term+len(eol)])
+	err := v.UnmarshalRESP3(src[:term+len(eol)])
 	if err != nil {
 		return v, src, err
 	}

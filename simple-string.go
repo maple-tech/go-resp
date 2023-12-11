@@ -31,7 +31,7 @@ func (s SimpleString) Contents() []byte {
 	return s.byts
 }
 
-func (s *SimpleString) Unmarshal2(src []byte) error {
+func (s *SimpleString) UnmarshalRESP2(src []byte) error {
 	if err := CanUnmarshalObject(src, s); err != nil {
 		return err
 	}
@@ -40,15 +40,15 @@ func (s *SimpleString) Unmarshal2(src []byte) error {
 	return nil
 }
 
-func (s *SimpleString) Unmarshal3(src []byte) error {
-	return s.Unmarshal2(src)
+func (s *SimpleString) UnmarshalRESP3(src []byte) error {
+	return s.UnmarshalRESP2(src)
 }
 
-func (s *SimpleString) Unmarshal(src []byte, _ Version) error {
-	return s.Unmarshal2(src)
+func (s *SimpleString) UnmarshalRESP(src []byte, _ Version) error {
+	return s.UnmarshalRESP2(src)
 }
 
-func (s SimpleString) Marshal2() ([]byte, error) {
+func (s SimpleString) MarshalRESP2() ([]byte, error) {
 	buf := bytes.Buffer{}
 	if _, err := WriteTo(s, &buf); err != nil {
 		return nil, err
@@ -56,12 +56,12 @@ func (s SimpleString) Marshal2() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (s SimpleString) Marshal3() ([]byte, error) {
-	return s.Marshal2()
+func (s SimpleString) MarshalRESP3() ([]byte, error) {
+	return s.MarshalRESP2()
 }
 
-func (s SimpleString) Marshal(_ Version) ([]byte, error) {
-	return s.Marshal2()
+func (s SimpleString) MarshalRESP(_ Version) ([]byte, error) {
+	return s.MarshalRESP2()
 }
 
 func NewSimpleString(str string) SimpleString {
