@@ -22,10 +22,11 @@ implemented so far.
 - [X] Doubles
 - [X] Big Number
 - [X] Bulk Error
-- [ ] Verbatim String
-- [ ] Map
-- [ ] Set
-- [ ] Push
+- [X] Verbatim String
+- [X] Map
+- [X] Set
+- [X] Push (these are not supposed to be in general payloads, but the extractor
+    treats them as a type anyways)
 
 ### General Usage
 

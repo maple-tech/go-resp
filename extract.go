@@ -40,6 +40,10 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractVerbatimString(src)
 	case TypeMap:
 		return ExtractMap(src)
+	case TypeSet:
+		return ExtractSet(src)
+	case TypePush:
+		return ExtractPush(src)
 	}
 	return nil, src, errors.New("could not extract valid RESP object")
 }
