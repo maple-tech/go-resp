@@ -3,6 +3,7 @@ package resp
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -96,4 +97,44 @@ func (a Array) Marshal(_ Version) ([]byte, error) {
 
 func NewArray(entries ...Object) Array {
 	return Array{entries}
+}
+
+func ExtractArray(src []byte) (Array, []byte, error) {
+	var v Array
+
+	// Arrays are tricky since they are dynamic. We do not know the total byte
+	// length and instead have to just start extracting for the length of the
+	// array. This is much like the Unmarshal method, but has to be copied.
+
+	// Check the type
+	ident := Type(src[0])
+	if ident != TypeArray {
+		return v, src, errors.New("expected Array type indicator for extracting")
+	}
+
+	// Split from the first terminator
+	interTerm := bytes.Index(src, eol)
+	if interTerm == -1 || interTerm == len(src)-len(eol) {
+		return v, src, errors.New("invalid array value, missing intermediate terminator")
+	}
+
+	// Parse the length of the array
+	ln, err := strconv.ParseUint(string(src[1:interTerm]), 10, 64)
+	if err != nil {
+		return v, src, err
+	}
+
+	// Establish the array
+	v.entries = make([]Object, ln)
+
+	// Start extracting, be aware this is recursive
+	rest := src[interTerm+len(eol):]
+	for i := range v.entries {
+		v.entries[i], rest, err = Extract(rest)
+		if err != nil {
+			return v, src, fmt.Errorf("error extracting array value at indice %d: %s", i, err.Error())
+		}
+	}
+
+	return v, rest, nil
 }

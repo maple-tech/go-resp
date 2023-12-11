@@ -55,7 +55,7 @@ func (v *VerbatimString) Unmarshal3(src []byte) error {
 
 func (v *VerbatimString) Unmarshal(src []byte, ver Version) error {
 	if ver == Version2 {
-		return errors.New("bulk error is not available in RESP 2")
+		return errors.New("verbatim string is not available in RESP 2")
 	}
 	return v.Unmarshal3(src)
 }
@@ -66,6 +66,13 @@ func (v VerbatimString) Marshal3() ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+func (v VerbatimString) Marshal(ver Version) ([]byte, error) {
+	if ver == Version2 {
+		return nil, errors.New("verbatim string is not available in RESP 2")
+	}
+	return v.Marshal3()
 }
 
 // NewVerbatimString constructs a new "Verbatim String". This is much like a

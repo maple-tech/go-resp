@@ -24,6 +24,8 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractInteger(src)
 	case TypeBulkString:
 		return ExtractBulkString(src)
+	case TypeArray:
+		return ExtractArray(src)
 	case TypeNull:
 		return ExtractNull(src)
 	case TypeBoolean:
@@ -36,6 +38,8 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractBulkError(src)
 	case TypeVerbatimString:
 		return ExtractVerbatimString(src)
+	case TypeMap:
+		return ExtractMap(src)
 	}
 	return nil, src, errors.New("could not extract valid RESP object")
 }
