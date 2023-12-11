@@ -34,6 +34,8 @@ func Extract(src []byte) (Object, []byte, error) {
 		return ExtractBigNumber(src)
 	case TypeBulkError:
 		return ExtractBulkError(src)
+	case TypeVerbatimString:
+		return ExtractVerbatimString(src)
 	}
 	return nil, src, errors.New("could not extract valid RESP object")
 }
