@@ -86,7 +86,7 @@ func Marshal2(obj any) ([]byte, error) {
 	val := reflect.ValueOf(obj)
 	if typ.Kind() == reflect.Pointer {
 		if val.IsNil() {
-			return NewNull().Marshal3()
+			return NewNull().MarshalRESP3()
 		}
 
 		val = reflect.Indirect(val)
@@ -114,14 +114,14 @@ func Marshal2(obj any) ([]byte, error) {
 		if val.Bool() {
 			ok = 1
 		}
-		return NewInteger(int64(ok)).Marshal2()
+		return NewInteger(int64(ok)).MarshalRESP2()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return NewInteger(val.Int()).Marshal2()
+		return NewInteger(val.Int()).MarshalRESP2()
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return NewInteger(int64(val.Uint())).Marshal2()
+		return NewInteger(int64(val.Uint())).MarshalRESP2()
 	case reflect.Float32, reflect.Float64:
 		str := strconv.FormatFloat(val.Float(), 'G', -1, 64)
-		return NewSimpleString(str).Marshal2()
+		return NewSimpleString(str).MarshalRESP2()
 	case reflect.Array, reflect.Slice:
 		return marshalSlice(val)
 	case reflect.Map, reflect.Struct:
@@ -129,7 +129,7 @@ func Marshal2(obj any) ([]byte, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not json encode slice for RESP2 compatibility: %s", err.Error())
 		}
-		return NewBulkString(string(str)).Marshal2()
+		return NewBulkString(string(str)).MarshalRESP2()
 	default:
 		if typ.Implements(reflectJSONMarshaler) {
 			v, ok := val.Interface().(json.Marshaler)
@@ -140,13 +140,13 @@ func Marshal2(obj any) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to json encode for RESP2 compatibility: %s", err.Error())
 			}
-			return NewBulkString(string(byt)).Marshal2()
+			return NewBulkString(string(byt)).MarshalRESP2()
 		} else if typ.Implements(reflectStringer) {
 			v, ok := val.Interface().(fmt.Stringer)
 			if !ok {
 				return nil, fmt.Errorf("failed to type assert value as fmt.Stringer")
 			}
-			return NewBulkString(v.String()).Marshal2()
+			return NewBulkString(v.String()).MarshalRESP2()
 		}
 
 		return nil, fmt.Errorf("unsupported type %s for RESP2 marshaling", typ.String())
@@ -158,7 +158,7 @@ func Marshal3(obj any) ([]byte, error) {
 	val := reflect.ValueOf(obj)
 	if typ.Kind() == reflect.Pointer {
 		if val.IsNil() {
-			return NewNull().Marshal3()
+			return NewNull().MarshalRESP3()
 		}
 
 		val = reflect.Indirect(val)
@@ -188,13 +188,13 @@ func Marshal3(obj any) ([]byte, error) {
 
 	switch typ.Kind() {
 	case reflect.Bool:
-		return NewBoolean(val.Bool()).Marshal3()
+		return NewBoolean(val.Bool()).MarshalRESP3()
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return NewInteger(val.Int()).Marshal2()
+		return NewInteger(val.Int()).MarshalRESP2()
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return NewInteger(int64(val.Uint())).Marshal2()
+		return NewInteger(int64(val.Uint())).MarshalRESP2()
 	case reflect.Float32, reflect.Float64:
-		return NewDouble(val.Float()).Marshal3()
+		return NewDouble(val.Float()).MarshalRESP3()
 	case reflect.Array, reflect.Slice:
 		return marshalSlice(val)
 	case reflect.Map:
@@ -211,13 +211,13 @@ func Marshal3(obj any) ([]byte, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to json encode for interface compatibility: %s", err.Error())
 			}
-			return NewBulkString(string(byt)).Marshal2()
+			return NewBulkString(string(byt)).MarshalRESP2()
 		} else if typ.Implements(reflectStringer) {
 			v, ok := val.Interface().(fmt.Stringer)
 			if !ok {
 				return nil, fmt.Errorf("failed to type assert value as fmt.Stringer")
 			}
-			return NewBulkString(v.String()).Marshal3()
+			return NewBulkString(v.String()).MarshalRESP3()
 		}
 
 		return nil, fmt.Errorf("unsupported type %s for RESP3 marshaling", typ.String())
@@ -242,7 +242,7 @@ func marshalSlice(val reflect.Value) ([]byte, error) {
 			return nil, fmt.Errorf("failed to marshal indice %d in array: %s", i, err.Error())
 		}
 	}
-	return raw.Marshal3()
+	return raw.MarshalRESP3()
 }
 
 func marshalMap(val reflect.Value) ([]byte, error) {
