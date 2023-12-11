@@ -285,7 +285,7 @@ func marshalStruct(val reflect.Value) ([]byte, error) {
 			continue
 		}
 
-		outName = typ.Name()
+		outName = field.Name
 
 		if tag, ok = field.Tag.Lookup("resp"); ok {
 			parts := strings.Split(tag, ",")

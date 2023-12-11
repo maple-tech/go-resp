@@ -52,6 +52,42 @@ var (
 	ValidTypes = append(ValidTypesV2, ValidTypesV3...)
 )
 
+func (t Type) String() string {
+	switch t {
+	case TypeSimpleString:
+		return "Simple String"
+	case TypeSimpleError:
+		return "Simple Error"
+	case TypeInteger:
+		return "Integer"
+	case TypeBulkString:
+		return "Bulk String"
+	case TypeArray:
+		return "Array"
+
+	case TypeNull:
+		return "Null"
+	case TypeBoolean:
+		return "Boolean"
+	case TypeDouble:
+		return "Double"
+	case TypeBigNumber:
+		return "Big Number"
+	case TypeBulkError:
+		return "Bulk Error"
+	case TypeVerbatimString:
+		return "Verbatim String"
+	case TypeMap:
+		return "Map"
+	case TypeSet:
+		return "Set"
+	case TypePush:
+		return "Push"
+	default:
+		return "Unknown"
+	}
+}
+
 // Valid returns true if this Type is in the combined v2 and v3 spec.
 func (t Type) Valid() bool {
 	byt := byte(t)
